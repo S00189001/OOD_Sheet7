@@ -92,5 +92,65 @@ namespace OOD_Sheet7
 
             UI_Ex5_TextBlock.Text = string.Format("The total value of freight for all for all orders is {0:C}", query.Sum());
         }
+
+        private void UI_Ex6_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var query = from items in db.Products
+                        orderby items.Category.CategoryName, items.UnitPrice descending
+                        select new
+                        {
+                            items.CategoryID,
+                            items.Category.CategoryName,
+                            items.ProductName,
+                            items.UnitPrice
+                        };
+
+            var results = query.ToList();
+
+            UI_Ex6_Listbox.ItemsSource = results;
+        }
+
+        private void UI_Ex7_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var query = from customers in db.Orders
+                        group customers by customers.CustomerID into topCustomers
+                        orderby topCustomers.Count() descending
+                        select new
+                        {
+                            CustomerID = topCustomers.Key,
+                            NumberOfOrders = topCustomers.Count()
+                        };
+
+            UI_Ex7_Listbox.ItemsSource = query.ToList();
+        }
+
+        private void UI_Ex8_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var query = from orders in db.Orders
+                        group orders by orders.CustomerID into topCustomers
+                        join customer in db.Customers on topCustomers.Key equals customer.CustomerID
+                        orderby topCustomers.Count() descending
+                        select new
+                        {
+                            CustomerID = customer.CustomerID,
+                            CompanyName = customer.CompanyName,
+                            NumberOfOrders = customer.Orders.Count
+                        };
+
+            UI_Ex8_Listbox.ItemsSource = query.ToList();
+        }
+
+        private void UI_Ex9_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var query = from customers in db.Customers
+                        where customers.Orders.Count == 0
+                        select new
+                        {
+                            CompanyName = customers.CompanyName,
+                            NumberOfOrders = customers.Orders.Count()
+                        };
+
+            UI_Ex9_Listbox.ItemsSource = query.ToList();
+        }
     }
 }
